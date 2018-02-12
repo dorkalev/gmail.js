@@ -2042,6 +2042,7 @@ var Gmail_ = function(localJQuery) {
     };
 
     api.tools.parse_email_data = function(email_data) {
+        let parser = new DOMParser;
         var data = {};
 
         for(var i in email_data) {
@@ -2078,12 +2079,13 @@ var Gmail_ = function(localJQuery) {
                 data.threads[x[1]].reply_to = api.tools.get_reply_to(x[13]);
                 data.threads[x[1]].labels = x[9];
 
-                try { // jQuery will sometime fail to parse x[13][6], if so, putting the raw HTML
-                    data.threads[x[1]].content_plain = x[13] ? $(x[13][6]).text() : x[8];
+                let content_plain_;
+                if (x[13]) {
+                  content_plain_ = parser.parseFromString('<!doctype html><body>' + x[13][6], 'text/html').body.textContent;
+                } else {
+                  content_plain_ = x[8];
                 }
-                catch(e) {
-                    data.threads[x[1]].content_plain = x[13] ? x[13][6] : x[8];
-                }
+                data.threads[x[1]].content_plain = content_plain_;
             }
         }
 
